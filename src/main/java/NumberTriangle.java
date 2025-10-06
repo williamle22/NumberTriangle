@@ -104,31 +104,42 @@ public class NumberTriangle {
      * @throws IOException may naturally occur if an issue reading the file occurs
      */
     public static NumberTriangle loadTriangle(String fname) throws IOException {
-        // open the file and get a BufferedReader object whose methods
-        // are more convenient to work with when reading the file contents.
         InputStream inputStream = NumberTriangle.class.getClassLoader().getResourceAsStream(fname);
         BufferedReader br = new BufferedReader(new InputStreamReader(inputStream));
 
-
-        // TODO define any variables that you want to use to store things
-
-        // will need to return the top of the NumberTriangle,
-        // so might want a variable for that.
-        NumberTriangle top = null;
-
+        // We'll first read all lines into a temporary array of strings
+        String[] lines = new String[100]; // assuming the triangle has at most 100 rows
+        int count = 0;
         String line = br.readLine();
         while (line != null) {
-
-            // remove when done; this line is included so running starter code prints the contents of the file
-            System.out.println(line);
-
-            // TODO process the line
-
-            //read the next line
+            lines[count] = line.trim();
+            count++;
             line = br.readLine();
         }
         br.close();
-        return top;
+
+        // Create an array of arrays to hold the triangle nodes
+        NumberTriangle[][] levels = new NumberTriangle[count][];
+
+        // Build the NumberTriangle objects row by row
+        for (int r = 0; r < count; r++) {
+            String[] nums = lines[r].split("\\s+");
+            levels[r] = new NumberTriangle[nums.length];
+            for (int c = 0; c < nums.length; c++) {
+                levels[r][c] = new NumberTriangle(Integer.parseInt(nums[c]));
+            }
+        }
+
+        // Link each node to its left and right children
+        for (int r = 0; r < count - 1; r++) {
+            for (int c = 0; c < levels[r].length; c++) {
+                levels[r][c].setLeft(levels[r + 1][c]);
+                levels[r][c].setRight(levels[r + 1][c + 1]);
+            }
+        }
+
+        // Return the top of the triangle (first element of the first row)
+        return levels[0][0];
     }
 
     public static void main(String[] args) throws IOException {
